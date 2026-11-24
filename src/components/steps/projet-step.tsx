@@ -2,7 +2,7 @@
 
 import { RotateCcw } from 'lucide-react';
 import type { Projet } from '@/lib/dossier';
-import { DEFAULT_DESCRIPTION, MODULE } from '@/lib/module';
+import { DEFAULT_DESCRIPTION, fr, MODULE } from '@/lib/module';
 import { Button, Card, Field, Input, Notice, SectionTitle, Select, Textarea } from '../ui/controls';
 import type { StepProps } from './types';
 
@@ -70,14 +70,14 @@ export function ProjetStep({ dossier, update }: StepProps) {
             <dl className="grid grid-cols-2 gap-y-1.5 text-sm">
               <dt className="text-muted">Dimensions hors-tout</dt>
               <dd className="text-right tabular">
-                {MODULE.length.toFixed(2)} × {MODULE.width.toFixed(2)} m
+                {fr(MODULE.length)} × {fr(MODULE.width)} m
               </dd>
               <dt className="text-muted">Hauteur</dt>
-              <dd className="text-right tabular">{MODULE.height.toFixed(2)} m</dd>
+              <dd className="text-right tabular">{fr(MODULE.height)} m</dd>
               <dt className="text-muted">Emprise au sol</dt>
-              <dd className="text-right tabular">{MODULE.footprint.toFixed(1)} m²</dd>
+              <dd className="text-right tabular">{fr(MODULE.footprint, 1)} m²</dd>
               <dt className="text-muted">Surface de plancher</dt>
-              <dd className="text-right tabular">{MODULE.floorArea.toFixed(1)} m²</dd>
+              <dd className="text-right tabular">{fr(MODULE.floorArea, 1)} m²</dd>
             </dl>
           </Card>
         </div>

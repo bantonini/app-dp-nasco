@@ -31,11 +31,12 @@ export const DEFAULT_MATERIALS =
 
 export const DEFAULT_DESCRIPTION =
   `Installation d'un module d'habitation préfabriqué « ${MODULE.name} » de la marque ${MODULE.brand}, ` +
-  `de ${fmt(MODULE.length)} m × ${fmt(MODULE.width)} m (emprise au sol ${fmt(MODULE.footprint)} m²) ` +
-  `et de ${fmt(MODULE.height)} m de hauteur. ${DEFAULT_MATERIALS}`;
+  `de ${fr(MODULE.length)} m × ${fr(MODULE.width)} m (emprise au sol ${fr(MODULE.footprint, 1)} m²) ` +
+  `et de ${fr(MODULE.height)} m de hauteur. ${DEFAULT_MATERIALS}`;
 
-function fmt(n: number) {
-  return n.toLocaleString('fr-FR', { minimumFractionDigits: n % 1 ? 1 : 2, maximumFractionDigits: 2 });
+/** Nombre au format français, `digits` décimales fixes. */
+export function fr(n: number, digits = 2) {
+  return n.toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
 export type DrawingId = 'facade-n4' | 'facade-n2' | 'facade-n3' | 'coupe-c19' | 'coupe-c20' | 'plan';
