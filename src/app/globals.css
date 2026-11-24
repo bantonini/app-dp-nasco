@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+/* ── Charte NASCO : vert / noir / crème — typographie Univers (repli : Archivo) ── */
+@theme {
+  --color-cream: #ebebe0;
+  --color-paper: #f6f6ef;
+  --color-ink: #0e0e0c;
+  --color-muted: #6c6b61;
+  --color-line: #d3d2c4;
+  --color-green: #204f1a;
+  --color-green-600: #2d6a25;
+  --color-green-50: #e3e8da;
+  --color-wood: #a3774f;
+  --color-sage: #56654e;
+  --color-danger: #a4261b;
+
+  --font-sans: 'Univers LT Std', 'Univers', var(--font-archivo), 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Univers LT Std Condensed', 'Univers Condensed', var(--font-archivo), 'Helvetica Neue', Arial, sans-serif;
+
+  --radius-brand: 4px;
+}
+
+@layer base {
+  html {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-stretch: 100%;
+  }
+  ::selection {
+    background: var(--color-green);
+    color: var(--color-cream);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-green);
+    outline-offset: 2px;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-stretch: 72%;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+@utility wordmark {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
