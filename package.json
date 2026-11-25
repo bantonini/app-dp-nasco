@@ -1,0 +1,36 @@
+{
+  "name": "app-dp-nasco",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Générateur de déclarations préalables de travaux pour le Pavillon N°1 NASCO",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types \"src/**/*.test.ts\"",
+    "assets:module": "node scripts/dwg-to-svg.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
+    "idb-keyval": "6.2.6",
+    "lucide-react": "1.69.0",
+    "next": "16.4.5",
+    "pdf-lib": "1.17.1",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@mlightcad/libredwg-web": "0.9.3",
+    "@tailwindcss/postcss": "4.3.4",
+    "@types/node": "22.19.1",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.4.5",
+    "tailwindcss": "4.3.4",
+    "typescript": "5.9.3"
+  }
+}

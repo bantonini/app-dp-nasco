@@ -1,0 +1,98 @@
+[
+  {
+    "id": "facade-n4",
+    "title": "Façade N4 — entrée",
+    "kind": "facade",
+    "source": "N4-facade.dwg",
+    "viewBox": [
+      -900,
+      -2951,
+      9800,
+      3401
+    ],
+    "envelope": {
+      "width": 8000,
+      "height": 2726
+    }
+  },
+  {
+    "id": "facade-n2",
+    "title": "Façade N2 — pignon",
+    "kind": "facade",
+    "source": "N2-facade.dwg",
+    "viewBox": [
+      -900,
+      -2951,
+      4300,
+      3401
+    ],
+    "envelope": {
+      "width": 2500,
+      "height": 2901
+    }
+  },
+  {
+    "id": "facade-n3",
+    "title": "Façade N3 — pignon",
+    "kind": "facade",
+    "source": "N3-facade.dwg",
+    "viewBox": [
+      -900,
+      -2951,
+      4280,
+      3401
+    ],
+    "envelope": {
+      "width": 2480,
+      "height": 2726
+    }
+  },
+  {
+    "id": "coupe-c19",
+    "title": "Coupe longitudinale C19",
+    "kind": "coupe",
+    "source": "C19-coupe.dwg",
+    "viewBox": [
+      -900,
+      -2951,
+      9800,
+      3401
+    ],
+    "envelope": {
+      "width": 8000,
+      "height": 2701
+    }
+  },
+  {
+    "id": "coupe-c20",
+    "title": "Coupe transversale C20",
+    "kind": "coupe",
+    "source": "C20-coupe.dwg",
+    "viewBox": [
+      -900,
+      -2951,
+      4300,
+      3401
+    ],
+    "envelope": {
+      "width": 2500,
+      "height": 2901
+    }
+  },
+  {
+    "id": "plan",
+    "title": "Plan du Pavillon N°1",
+    "kind": "plan",
+    "source": "LAD-NASCO-PLN.dwg",
+    "viewBox": [
+      -1812,
+      -2643,
+      11816,
+      7544
+    ],
+    "envelope": {
+      "width": 8030,
+      "height": 2480
+    }
+  }
+]
