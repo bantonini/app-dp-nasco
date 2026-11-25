@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, FilePlus2, FlaskConical, HardDrive, LogOut, Trash2 } from 'lucide-react';
+import { ArrowRight, FilePlus2, FlaskConical, HardDrive, LoaderCircle, LogOut, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -9,22 +9,29 @@ import { demoDossier } from '@/lib/demo';
 import { repository } from '@/lib/storage';
 import { getSupabase } from '@/lib/storage/supabase';
 import { AppHeader, BrandBar } from './ui/brand';
-import { Button } from './ui/controls';
+import { Button, Notice } from './ui/controls';
 import { StatusPill } from './status-pill';
 
 export function Dashboard() {
   const router = useRouter();
   const [dossiers, setDossiers] = useState<Dossier[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'blank' | 'demo' | null>(null);
   const repo = repository();
 
   useEffect(() => {
-    repo.list().then(setDossiers).catch((e: Error) => setError(e.message));
+    repo
+      .list()
+      .then(setDossiers)
+      .catch((e: Error) => {
+        setError(e.message);
+        setDossiers([]);
+      });
   }, [repo]);
 
   async function create(kind: 'blank' | 'demo') {
-    setBusy(true);
+    setBusy(kind);
+    setError(null);
     try {
       const id = crypto.randomUUID();
       const seq = await repo.nextSequence();
@@ -32,8 +39,8 @@ export function Dashboard() {
       await repo.save(d);
       router.push(`/dossiers/${id}`);
     } catch (e) {
-      setError((e as Error).message);
-      setBusy(false);
+      setError(`Impossible de créer le dossier. ${(e as Error).message}`);
+      setBusy(null);
     }
   }
 
@@ -71,13 +78,18 @@ export function Dashboard() {
               situation et de masse, coupes, façades, insertion paysagère et photographies — prêt à déposer en mairie.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button size="lg" onClick={() => create('blank')} disabled={busy}>
-                <FilePlus2 className="size-4" /> Nouveau dossier
+              <Button size="lg" onClick={() => create('blank')} disabled={!!busy}>
+                {busy === 'blank' ? <LoaderCircle className="size-4 animate-spin" /> : <FilePlus2 className="size-4" />} Nouveau dossier
               </Button>
-              <Button size="lg" variant="outline" onClick={() => create('demo')} disabled={busy}>
-                <FlaskConical className="size-4" /> Dossier d&apos;exemple
+              <Button size="lg" variant="outline" onClick={() => create('demo')} disabled={!!busy}>
+                {busy === 'demo' ? <LoaderCircle className="size-4 animate-spin" /> : <FlaskConical className="size-4" />} Dossier d&apos;exemple
               </Button>
             </div>
+            {error && (
+              <div className="mt-5 max-w-xl" role="alert">
+                <Notice tone="warn">{error}</Notice>
+              </div>
+            )}
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/module/insertion-n4.svg" alt="Façade du Pavillon N°1" className="w-full drop-shadow-[0_18px_18px_rgba(0,0,0,0.12)]" />
@@ -90,14 +102,14 @@ export function Dashboard() {
           {dossiers && <span className="text-sm text-muted tabular">{dossiers.length} au total</span>}
         </div>
 
-        {error && <p className="mb-4 text-sm text-danger">{error}</p>}
-
         {dossiers === null ? (
           <div className="h-40 animate-pulse rounded-[6px] bg-paper" />
         ) : dossiers.length === 0 ? (
-          <div className="rounded-[6px] border border-dashed border-line px-6 py-16 text-center text-muted">
-            Aucun dossier pour l&apos;instant. Créez le premier, ou ouvrez le dossier d&apos;exemple pour découvrir l&apos;outil.
-          </div>
+          !error && (
+            <div className="rounded-[6px] border border-dashed border-line px-6 py-16 text-center text-muted">
+              Aucun dossier pour l&apos;instant. Créez le premier, ou ouvrez le dossier d&apos;exemple pour découvrir l&apos;outil.
+            </div>
+          )
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-[6px] border border-line bg-paper">
             {dossiers.map((d) => (

@@ -11,6 +11,11 @@ create table if not exists public.dossiers (
   updated_at timestamptz not null default now()
 );
 
+-- Les projets Supabase récents n'accordent plus ces droits par défaut : sans eux,
+-- l'application affiche « permission denied for table dossiers ».
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.dossiers to authenticated;
+
 create index if not exists dossiers_updated_at_idx on public.dossiers (updated_at desc);
 
 -- Les dossiers sont partagés entre tous les membres connectés de l'équipe.

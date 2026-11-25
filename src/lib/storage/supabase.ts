@@ -23,8 +23,16 @@ export function getSupabase(): SupabaseClient | null {
  * bucket privé `dossiers` pour les photos et images générées.
  */
 export function createSupabaseRepository(sb: SupabaseClient): Repository {
-  const fail = (e: { message: string } | null) => {
-    if (e) throw new Error(e.message);
+  const fail = (e: { message: string; code?: string } | null) => {
+    if (!e) return;
+    // 42501 : droits manquants sur la table (schema.sql pas ou partiellement exécuté).
+    if (e.code === '42501' || /permission denied/i.test(e.message))
+      throw new Error(
+        "Accès refusé à la table des dossiers. Exécutez à nouveau supabase/schema.sql dans Supabase (SQL Editor), puis rechargez la page.",
+      );
+    if (e.code === '42P01' || /relation .* does not exist|Could not find the table/i.test(e.message))
+      throw new Error('La table des dossiers n’existe pas encore. Exécutez supabase/schema.sql dans Supabase (SQL Editor).');
+    throw new Error(e.message);
   };
   return {
     kind: 'supabase',
