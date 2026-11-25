@@ -27,7 +27,7 @@ export function ImplantationStep({ dossier, update, goTo }: StepProps) {
   if (!model)
     return (
       <>
-        <SectionTitle eyebrow="DP2" title="Plan de masse" />
+        <SectionTitle eyebrow="DPC2" title="Plan de masse" />
         <Notice tone="warn">
           Sélectionnez d&apos;abord la parcelle du terrain.{' '}
           <button className="underline" onClick={() => goTo('terrain')}>
@@ -106,7 +106,7 @@ export function ImplantationStep({ dossier, update, goTo }: StepProps) {
 
   return (
     <>
-      <SectionTitle eyebrow="Pièce DP2" title="Plan de masse">
+      <SectionTitle eyebrow="Pièce DPC2" title="Plan de masse">
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => setImplantation({ rotation: alignToNearestBoundary(model) })}>
             <Magnet className="size-4" /> Aligner sur la limite
@@ -167,7 +167,7 @@ export function ImplantationStep({ dossier, update, goTo }: StepProps) {
           <Card className="p-5">
             <p className="mb-1 text-xs font-medium tracking-wide text-muted uppercase">Points de vue photos</p>
             <p className="mb-4 text-sm text-muted">
-              Les angles de prise de vue des photos DP7 et DP8 doivent figurer sur le plan.
+              Les angles de prise de vue des photos DPC7 et DPC8 doivent figurer sur le plan.
             </p>
             <div className="grid grid-cols-2 gap-2">
               {(['dp7', 'dp8'] as const).map((id) => (

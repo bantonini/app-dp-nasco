@@ -23,7 +23,7 @@ export function InsertionStep({ dossier, update, goTo }: StepProps) {
 
   return (
     <>
-      <SectionTitle eyebrow="Pièce DP6" title="Insertion paysagère">
+      <SectionTitle eyebrow="Pièce DPC6" title="Insertion paysagère">
         {ins.result && (
           <span className="inline-flex items-center gap-1.5 text-sm text-green">
             <CheckCircle2 className="size-4" /> Photomontage enregistré
@@ -38,8 +38,8 @@ export function InsertionStep({ dossier, update, goTo }: StepProps) {
             value={ins.base}
             onChange={(v) => edit({ base: v, corners: null, mask: null })}
             options={[
-              { value: 'dp7', label: 'DP7' },
-              { value: 'dp8', label: 'DP8' },
+              { value: 'dp7', label: 'DPC7' },
+              { value: 'dp8', label: 'DPC8' },
               { value: 'custom', label: 'Autre' },
             ]}
           />

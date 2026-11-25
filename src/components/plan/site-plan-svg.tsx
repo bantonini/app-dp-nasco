@@ -21,7 +21,7 @@ const GREEN = '#204f1a';
 const fmt = (n: number) => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /**
- * Plan de masse (DP2), dessiné en mètres dans le repère local (x Est, y Nord).
+ * Plan de masse (DPC2), dessiné en mètres dans le repère local (x Est, y Nord).
  * Utilisé à la fois pour l'éditeur interactif et pour l'export PDF.
  */
 export function SitePlanSvg({ model, unit: u, orthoHref, interactive, sizeMm, className, svgRef, handlers }: SitePlanSvgProps) {

@@ -65,6 +65,8 @@ export interface Projet {
   hauteur: number;
   /** Surface de plancher existante sur le terrain avant travaux (m²). */
   surfaceExistante: number;
+  /** Emprise au sol des constructions existantes avant travaux (m²). */
+  empriseExistante: number;
   raccordements: string;
 }
 
@@ -159,6 +161,7 @@ export function createDossier(id: string, sequence: number): Dossier {
       emprise: MODULE.footprint,
       hauteur: MODULE.height,
       surfaceExistante: 0,
+      empriseExistante: 0,
       raccordements: 'Raccordement aux réseaux existants (eau, électricité) depuis la construction principale.',
     },
     implantation: { x: 0, y: 0, rotation: 0, placed: false, orthoBackground: false, viewpoints: { dp7: null, dp8: null } },
@@ -210,13 +213,13 @@ export function stepStatus(d: Dossier): Record<StepId, StepStatus> {
   ]);
   const implantation = check([
     [d.implantation.placed, 'Position du module sur la parcelle'],
-    [!!d.implantation.viewpoints.dp7 && !!d.implantation.viewpoints.dp8, 'Points de vue des photos DP7 / DP8'],
+    [!!d.implantation.viewpoints.dp7 && !!d.implantation.viewpoints.dp8, 'Points de vue des photos DPC7 / DPC8'],
   ]);
   const photos = check([
-    [!!d.photos.dp7, 'Photo environnement proche (DP7)'],
-    [!!d.photos.dp8, 'Photo paysage lointain (DP8)'],
+    [!!d.photos.dp7, 'Photo environnement proche (DPC7)'],
+    [!!d.photos.dp8, 'Photo paysage lointain (DPC8)'],
   ]);
-  const insertion = check([[!!d.insertion.result, 'Insertion paysagère enregistrée (DP6)']]);
+  const insertion = check([[!!d.insertion.result, 'Insertion paysagère enregistrée (DPC6)']]);
   const exportStep = check([
     [!!d.engagement.lieu, 'Lieu de signature'],
     [[declarant, terrain, projet, implantation, photos, insertion].every((x) => x.done), 'Étapes précédentes complètes'],

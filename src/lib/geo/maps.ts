@@ -1,6 +1,6 @@
 /**
  * Composition de cartes à partir des tuiles WMTS (Web Mercator) de la Géoplateforme,
- * à une échelle d'impression exacte. Utilisé pour le DP1 et le fond du DP2.
+ * à une échelle d'impression exacte. Utilisé pour le DPC1 et le fond du DPC2.
  */
 import type { Position } from './geometry';
 

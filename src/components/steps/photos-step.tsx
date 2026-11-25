@@ -8,13 +8,13 @@ import type { StepProps } from './types';
 const SLOTS = [
   {
     id: 'dp7' as const,
-    code: 'DP7',
+    code: 'DPC7',
     title: "Environnement proche",
     text: "Photographie du terrain prise depuis ses abords immédiats, montrant l'emplacement du futur module et les constructions ou plantations voisines.",
   },
   {
     id: 'dp8' as const,
-    code: 'DP8',
+    code: 'DPC8',
     title: 'Paysage lointain',
     text: "Photographie situant le terrain dans le paysage environnant, prise depuis l'espace public ou un point de vue éloigné.",
   },
@@ -24,7 +24,7 @@ export function PhotosStep({ dossier, update, goTo }: StepProps) {
   const vps = dossier.implantation.viewpoints;
   return (
     <>
-      <SectionTitle eyebrow="Pièces DP7 et DP8" title="Photographies" />
+      <SectionTitle eyebrow="Pièces DPC7 et DPC8" title="Photographies" />
       <div className="grid gap-6 md:grid-cols-2">
         {SLOTS.map((s) => (
           <Card key={s.id} className="p-5">
@@ -56,8 +56,8 @@ export function PhotosStep({ dossier, update, goTo }: StepProps) {
       </div>
       <div className="mt-6">
         <Notice>
-          Conseil : photographiez à hauteur d&apos;homme, en format paysage, en évitant le contre-jour. La photo DP7 sert aussi de base
-          au photomontage (DP6).
+          Conseil : photographiez à hauteur d&apos;homme, en format paysage, en évitant le contre-jour. La photo DPC7 sert aussi de base
+          au photomontage (DPC6).
         </Notice>
       </div>
     </>

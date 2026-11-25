@@ -60,7 +60,7 @@ export function Dashboard() {
       <main className="mx-auto max-w-[1400px] px-5 pt-12 pb-24 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1fr_minmax(0,520px)] lg:items-end">
           <div>
-            <p className="mb-3 text-xs font-medium tracking-[0.16em] text-green uppercase">Cerfa n° 13703 · DP maison individuelle</p>
+            <p className="mb-3 text-xs font-medium tracking-[0.16em] text-green uppercase">Cerfa n° 16702 · Déclaration préalable</p>
             <h1 className="font-display text-[3.4rem] leading-[0.95] sm:text-[4.4rem]">
               Déclarations
               <br />

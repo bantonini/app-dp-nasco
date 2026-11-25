@@ -12,7 +12,7 @@ const DESTINATION_LABELS: Record<Dossier['projet']['destination'], string> = {
 type Row = [string, string];
 
 /**
- * Récapitulatif des informations à porter sur le formulaire Cerfa n° 13703
+ * Récapitulatif des informations à porter sur le formulaire Cerfa n° 16702
  * (déclaration préalable — maison individuelle et/ou ses annexes), dans
  * l'ordre de ses rubriques.
  */
@@ -133,11 +133,11 @@ function newPage(pdf: PDFDocument, fonts: Fonts, d: Dossier, first: boolean) {
   const s = new Sheet(pdf.addPage(A4_PORTRAIT.map((v) => v * MM) as [number, number]), fonts);
   s.rect(0, 0, 210, 22, { fill: COLORS.cream });
   s.text(18, 14, 'NASCO.', { size: 12, bold: true, tracking: 0.8 });
-  s.text(192, 10.5, 'Formulaire Cerfa n° 13703', { size: 8.5, bold: true, align: 'right' });
+  s.text(192, 10.5, 'Formulaire Cerfa n° 16702', { size: 8.5, bold: true, align: 'right' });
   s.text(192, 15, 'Données à reporter — déclaration préalable', { size: 7.5, align: 'right', color: COLORS.muted });
   if (first) {
     s.text(18, 34, 'Récapitulatif du formulaire', { size: 17, bold: true });
-    s.paragraph(18, 40, 174, `Informations du dossier ${d.reference} classées selon les rubriques du Cerfa n° 13703. À reporter sur le formulaire officiel, à dater et à signer par le déclarant.`, { size: 8.5, leading: 3.8, color: COLORS.muted });
+    s.paragraph(18, 40, 174, `Informations du dossier ${d.reference} classées selon les rubriques du Cerfa n° 16702. À reporter sur le formulaire officiel, à dater et à signer par le déclarant.`, { size: 8.5, leading: 3.8, color: COLORS.muted });
   }
   return s;
 }

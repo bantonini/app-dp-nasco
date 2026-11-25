@@ -22,9 +22,9 @@ const STEPS: { id: StepId; label: string; detail: string; Component: React.Compo
   { id: 'declarant', label: 'Déclarant', detail: 'Identité et coordonnées', Component: DeclarantStep },
   { id: 'terrain', label: 'Terrain', detail: 'Adresse et cadastre', Component: TerrainStep },
   { id: 'projet', label: 'Projet', detail: 'Description et surfaces', Component: ProjetStep },
-  { id: 'implantation', label: 'Implantation', detail: 'Plan de masse · DP2', Component: ImplantationStep },
-  { id: 'photos', label: 'Photographies', detail: 'DP7 · DP8', Component: PhotosStep },
-  { id: 'insertion', label: 'Insertion', detail: 'Photomontage · DP6', Component: InsertionStep },
+  { id: 'implantation', label: 'Implantation', detail: 'Plan de masse · DPC2', Component: ImplantationStep },
+  { id: 'photos', label: 'Photographies', detail: 'DPC7 · DPC8', Component: PhotosStep },
+  { id: 'insertion', label: 'Insertion', detail: 'Photomontage · DPC6', Component: InsertionStep },
   { id: 'export', label: 'Dossier PDF', detail: 'Vérification et export', Component: ExportStep },
 ];
 

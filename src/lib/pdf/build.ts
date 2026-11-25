@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, type PDFImage } from 'pdf-lib';
+import { PDFDocument, StandardFonts, type PDFImage, type PDFPage } from 'pdf-lib';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { SitePlanSvg } from '@/components/plan/site-plan-svg';
@@ -6,10 +6,11 @@ import { declarantName, formatAddress, parcelLabel, type Dossier, type FileRef }
 import { cardinal, outerRings } from '../geo/geometry';
 import { drawLocationMarker, drawRings, renderMap, zoomForScale } from '../geo/maps';
 import { canvasToBlob, rasterizeSvg } from '../images';
-import { DRAWINGS, FACADE_NORMALS, MODULE, type DrawingId } from '../module';
+import { DRAWINGS, FACADE_NORMALS, fr, MODULE, type DrawingId } from '../module';
 import { buildSitePlan, fitScale } from '../site-plan';
 import { repository } from '../storage';
 import { cerfaPages } from './cerfa';
+import { fillCerfa, loadCerfaTemplate } from './cerfa-official';
 import { A4_LANDSCAPE, COLORS, niceBarLength, Sheet, type Fonts } from './sheet';
 
 export interface BuildProgress {
@@ -32,7 +33,7 @@ interface PieceInfo {
 
 /**
  * Construit le dossier complet de déclaration préalable (PDF), entièrement
- * dans le navigateur : récapitulatif Cerfa, DP1 à DP8.
+ * dans le navigateur : récapitulatif Cerfa, DPC1 à DPC8.
  */
 export async function buildDossierPdf(d: Dossier, onProgress?: (p: BuildProgress) => void): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
@@ -45,15 +46,15 @@ export async function buildDossierPdf(d: Dossier, onProgress?: (p: BuildProgress
 
   const jobs: [string, () => Promise<void>][] = [
     ['Page de garde', () => coverPage(pdf, fonts, d)],
-    ['Formulaire Cerfa', () => cerfaPages(pdf, fonts, d)],
-    ['DP1 — Plan de situation', () => dp1(pdf, fonts, d)],
-    ['DP2 — Plan de masse', () => dp2(pdf, fonts, d)],
-    ['DP3 — Coupes', () => drawingsPage(pdf, fonts, d, 'DP3', 'Plan en coupe du terrain et de la construction', ['coupe-c19', 'coupe-c20'])],
-    ['DP4 — Façades', () => drawingsPage(pdf, fonts, d, 'DP4', 'Plan des façades et des toitures', ['facade-n4', 'facade-n2', 'facade-n3'])],
-    ['DP4 — Plan du module', () => modulePlanPage(pdf, fonts, d)],
-    ['DP6 — Insertion paysagère', () => photoPage(pdf, fonts, d, 'DP6', 'Document graphique d’insertion du projet', d.insertion.result, 'Photomontage du Pavillon N°1 dans son environnement.')],
-    ['DP7 — Environnement proche', () => photoPage(pdf, fonts, d, 'DP7', 'Photographie de l’environnement proche', d.photos.dp7, 'Point de vue DP7 reporté sur le plan de masse (DP2).')],
-    ['DP8 — Paysage lointain', () => photoPage(pdf, fonts, d, 'DP8', 'Photographie du paysage lointain', d.photos.dp8, 'Point de vue DP8 reporté sur le plan de masse (DP2).')],
+    ['Formulaire Cerfa 16702', () => officialCerfa(pdf, fonts, d)],
+    ['DPC1 — Plan de situation', () => dp1(pdf, fonts, d)],
+    ['DPC2 — Plan de masse', () => dp2(pdf, fonts, d)],
+    ['DPC3 — Coupes', () => drawingsPage(pdf, fonts, d, 'DPC3', 'Plan en coupe du terrain et de la construction', ['coupe-c19', 'coupe-c20'])],
+    ['DPC4 — Façades', () => drawingsPage(pdf, fonts, d, 'DPC4', 'Plan des façades et des toitures', ['facade-n4', 'facade-n2', 'facade-n3'])],
+    ['DPC4 — Plan du module', () => modulePlanPage(pdf, fonts, d)],
+    ['DPC6 — Insertion paysagère', () => photoPage(pdf, fonts, d, 'DPC6', 'Document graphique d’insertion du projet', d.insertion.result, 'Photomontage du Pavillon N°1 dans son environnement.')],
+    ['DPC7 — Environnement proche', () => photoPage(pdf, fonts, d, 'DPC7', 'Photographie de l’environnement proche', d.photos.dp7, 'Point de vue DPC7 reporté sur le plan de masse (DPC2).')],
+    ['DPC8 — Paysage lointain', () => photoPage(pdf, fonts, d, 'DPC8', 'Photographie du paysage lointain', d.photos.dp8, 'Point de vue DPC8 reporté sur le plan de masse (DPC2).')],
   ];
   for (const [i, [step, job]] of jobs.entries()) {
     onProgress?.({ step, done: i, total: jobs.length });
@@ -134,12 +135,28 @@ function swatch(s: Sheet, x: number, y: number, kind: NonNullable<PieceInfo['leg
 function numberPages(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   const pages = pdf.getPages();
   pages.forEach((p, i) => {
-    if (i === 0) return;
+    if (i === 0 || officialPages.has(p)) return;
     const s = new Sheet(p, fonts);
     const label = `${i + 1} / ${pages.length}`;
     if (s.width > s.height) s.text(285, 200, label, { size: 7, align: 'right', color: COLORS.muted });
     else s.text(s.width - 12, s.height - 8, `${d.reference} · ${label}`, { size: 7, align: 'right', color: COLORS.muted });
   });
+}
+
+// ───────────────────────── Cerfa officiel ─────────────────────────
+
+/** Pages du Cerfa officiel : on n'y appose pas la numérotation du dossier. */
+const officialPages = new WeakSet<PDFPage>();
+
+/** Insère le Cerfa 16702 rempli et figé ; à défaut (formulaire indisponible), le récapitulatif. */
+async function officialCerfa(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
+  try {
+    const filled = await fillCerfa(d, await loadCerfaTemplate(), { flatten: true });
+    for (const page of await pdf.copyPages(filled, filled.getPageIndices())) officialPages.add(pdf.addPage(page));
+  } catch (e) {
+    console.warn('Cerfa officiel indisponible, récapitulatif utilisé', e);
+    await cerfaPages(pdf, fonts, d);
+  }
 }
 
 // ───────────────────────── Page de garde ─────────────────────────
@@ -152,7 +169,7 @@ async function coverPage(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
 
   s.text(18, 70, 'Déclaration préalable', { size: 34, bold: true });
   s.text(18, 84, `Installation d’un ${MODULE.name}`, { size: 18 });
-  s.text(18, 93, 'Construction d’une maison individuelle et/ou de ses annexes — Cerfa n° 13703', { size: 10, color: COLORS.muted });
+  s.text(18, 93, 'Constructions et travaux non soumis à permis de construire — Cerfa n° 16702*03', { size: 10, color: COLORS.muted });
 
   const rows: [string, string][] = [
     ['Déclarant', declarantName(d)],
@@ -170,13 +187,13 @@ async function coverPage(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
 
   // Bordereau des pièces
   const pieces = [
-    ['DP1', 'Plan de situation du terrain'],
-    ['DP2', 'Plan de masse'],
-    ['DP3', 'Plan en coupe'],
-    ['DP4', 'Plan des façades et des toitures'],
-    ['DP6', 'Document graphique d’insertion'],
-    ['DP7', 'Photographie — environnement proche'],
-    ['DP8', 'Photographie — paysage lointain'],
+    ['DPC1', 'Plan de situation du terrain'],
+    ['DPC2', 'Plan de masse'],
+    ['DPC3', 'Plan en coupe'],
+    ['DPC4', 'Plan des façades et des toitures'],
+    ['DPC6', 'Document graphique d’insertion'],
+    ['DPC7', 'Photographie — environnement proche'],
+    ['DPC8', 'Photographie — paysage lointain'],
   ];
   s.text(200, 118, 'PIÈCES JOINTES', { size: 7, bold: true, color: COLORS.muted });
   pieces.forEach(([code, label], i) => {
@@ -192,11 +209,11 @@ async function coverPage(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   s.text(279, 195, new Date(d.engagement.date || Date.now()).toLocaleDateString('fr-FR', { dateStyle: 'long' }), { size: 9, align: 'right' });
 }
 
-// ───────────────────────── DP1 ─────────────────────────
+// ───────────────────────── DPC1 ─────────────────────────
 
 async function dp1(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   const s = landscape(pdf, fonts, d, {
-    code: 'DP1',
+    code: 'DPC1',
     title: 'Plan de situation du terrain',
     scale: '1/25 000 et 1/5 000',
     notes: ['Fonds de plan : Plan IGN, © IGN – Géoplateforme.', 'Le terrain est repéré par une cible rouge et, sur le plan de détail, par son contour.'],
@@ -228,13 +245,13 @@ async function dp1(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   }
 }
 
-// ───────────────────────── DP2 ─────────────────────────
+// ───────────────────────── DPC2 ─────────────────────────
 
 async function dp2(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   const model = buildSitePlan(d);
   const scale = model ? fitScale(model.frame.width, model.frame.height, { width: AREA.w, height: AREA.h - 12 }) : 200;
   const s = landscape(pdf, fonts, d, {
-    code: 'DP2',
+    code: 'DPC2',
     title: 'Plan de masse des constructions à édifier',
     scale: `1/${scale.toLocaleString('fr-FR')}`,
     legend: [
@@ -242,7 +259,7 @@ async function dp2(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
       { swatch: 'module', label: `${MODULE.name} projeté (${MODULE.length.toFixed(2).replace('.', ',')} × ${MODULE.width.toFixed(2).replace('.', ',')} m, h. ${MODULE.height.toFixed(2).replace('.', ',')} m)` },
       { swatch: 'building', label: 'Constructions existantes' },
       { swatch: 'neighbour', label: 'Parcelles voisines' },
-      { swatch: 'viewpoint', label: 'Prises de vue DP7 / DP8' },
+      { swatch: 'viewpoint', label: 'Prises de vue DPC7 / DPC8' },
     ],
     notes: [
       'Cotes en mètres, distances mesurées aux limites séparatives les plus proches.',
@@ -271,7 +288,7 @@ async function dp2(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   s.text(x + wMm, y + hMm + 8, `Entrée orientée ${cardinal(model.rotation)}`, { size: 7, align: 'right', color: COLORS.muted });
 }
 
-// ───────────────────────── DP3 / DP4 : dessins du module ─────────────────────────
+// ───────────────────────── DPC3 / DPC4 : dessins du module ─────────────────────────
 
 const svgCache = new Map<DrawingId, Promise<string>>();
 const fetchSvg = (id: DrawingId) => {
@@ -291,12 +308,17 @@ async function placeDrawing(pdf: PDFDocument, s: Sheet, id: DrawingId, x: number
     // Cotes de niveau (mm → papier).
     const level = (hMm: number) => y + (-hMm - vy) / scale;
     const lx = x + (dwg.envelope.width - vx + 250) / scale;
+    // Le DWG a son origine au plancher fini ; les niveaux sont cotés depuis le terrain naturel.
+    const tn = -MODULE.floorHeight * 1000;
     for (const [hMm, label] of [
-      [MODULE.height * 1000, `+${MODULE.height.toFixed(2).replace('.', ',')}`],
-      [0, '±0,00 plancher'],
+      [MODULE.height * 1000 + tn, `+${fr(MODULE.height)} point haut`],
+      [0, `+${fr(MODULE.floorHeight)} plancher`],
+      [tn, '±0,00 TN'],
     ] as const) {
       const ly = level(hMm);
-      s.line(lx, ly, lx + 3, ly, { width: 0.4 });
+      // Ligne du terrain naturel sous le module (pose sur plots).
+      if (hMm === tn) s.line(x, ly, lx + 3, ly, { width: 0.5 });
+      else s.line(lx, ly, lx + 3, ly, { width: 0.4 });
       s.text(lx + 4, ly + 1, label, { size: 6.5 });
     }
   }
@@ -314,8 +336,8 @@ async function drawingsPage(pdf: PDFDocument, fonts: Fonts, d: Dossier, code: st
     title,
     scale: '1/50',
     notes:
-      code === 'DP3'
-        ? ['Module posé sur plots : le terrain naturel est conservé, sans terrassement ni remblai.', `Hauteur maximale : ${MODULE.height.toFixed(2).replace('.', ',')} m au-dessus du plancher.`]
+      code === 'DPC3'
+        ? ['Module posé sur plots : le terrain naturel est conservé, sans terrassement ni remblai.', `Hauteur maximale : ${fr(MODULE.height)} m depuis le terrain naturel (plancher à +${fr(MODULE.floorHeight)} m).`]
         : ['Bardage panneaux bois/liège teinte naturelle.', 'Volets et brise-vue coulissants vert sauge.', 'Menuiseries aluminium noir. Toiture bac acier gris clair.'],
   });
   const S = 50;
@@ -336,7 +358,7 @@ async function drawingsPage(pdf: PDFDocument, fonts: Fonts, d: Dossier, code: st
 
 async function modulePlanPage(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   const s = landscape(pdf, fonts, d, {
-    code: 'DP4',
+    code: 'DPC4',
     title: 'Plan du module et de la toiture (complément)',
     scale: '1/75',
     notes: [
@@ -351,7 +373,7 @@ async function modulePlanPage(pdf: PDFDocument, fonts: Fonts, d: Dossier) {
   s.scaleBar(AREA.x, AREA.y + AREA.h - 4, S, 2);
 }
 
-// ───────────────────────── DP6 / DP7 / DP8 ─────────────────────────
+// ───────────────────────── DPC6 / DPC7 / DPC8 ─────────────────────────
 
 async function photoPage(pdf: PDFDocument, fonts: Fonts, d: Dossier, code: string, title: string, ref: FileRef | null, note: string) {
   const s = landscape(pdf, fonts, d, { code, title, notes: [note] });

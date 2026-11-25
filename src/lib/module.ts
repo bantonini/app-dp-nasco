@@ -12,15 +12,14 @@ export const MODULE = {
   length: 8.0,
   /** Largeur hors-tout (m) — pignons N2 / N3. */
   width: 2.5,
-  /** Hauteur au point le plus haut, depuis le sol fini (m) — acrotère. */
-  height: 2.7,
-  /** Hauteur du plancher fini au-dessus du terrain (m) — pose sur plots. */
-  floorHeight: 0.25,
+  /** Hauteur au point le plus haut (acrotère), mesurée depuis le terrain naturel (m). */
+  height: 3.0,
+  /** Hauteur du plancher fini au-dessus du terrain naturel (m) — pose sur plots. */
+  floorHeight: 0.3,
   /** Surface de plancher intérieure (m²) : 7,46 × 1,90 d'après le plan. */
   floorArea: 14.2,
-  get footprint() {
-    return Math.round(this.length * this.width * 10) / 10;
-  },
+  /** Emprise au sol déclarée (m²), validée par NASCO. */
+  footprint: 19.8,
 } as const;
 
 export const DEFAULT_MATERIALS =
@@ -32,7 +31,7 @@ export const DEFAULT_MATERIALS =
 export const DEFAULT_DESCRIPTION =
   `Installation d'un module d'habitation préfabriqué « ${MODULE.name} » de la marque ${MODULE.brand}, ` +
   `de ${fr(MODULE.length)} m × ${fr(MODULE.width)} m (emprise au sol ${fr(MODULE.footprint, 1)} m²) ` +
-  `et de ${fr(MODULE.height)} m de hauteur. ${DEFAULT_MATERIALS}`;
+  `et de ${fr(MODULE.height)} m de hauteur au point le plus haut depuis le terrain naturel. ${DEFAULT_MATERIALS}`;
 
 /** Nombre au format français, `digits` décimales fixes. */
 export function fr(n: number, digits = 2) {
@@ -68,7 +67,7 @@ export const FACADE_NORMALS: Record<'facade-n4' | 'facade-n2' | 'facade-n3' | 'f
   'facade-n2': 270,
 };
 
-/** Images utilisées pour l'insertion paysagère (DP6). */
+/** Images utilisées pour l'insertion paysagère (DPC6). */
 export const INSERTION_SPRITES = [
   { id: 'n4', label: 'Façade entrée (N4)', url: '/module/insertion-n4.svg', ratio: 8.9 / 3.15 },
   { id: 'n2', label: 'Pignon (N2)', url: '/module/insertion-pignon.svg', ratio: 3.4 / 3.15 },

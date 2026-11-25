@@ -19,7 +19,7 @@ export function ProjetStep({ dossier, update }: StepProps) {
 
   return (
     <>
-      <SectionTitle eyebrow="Cerfa · rubriques 4 et 5" title="Le projet" />
+      <SectionTitle eyebrow="Cerfa 16702 · rubrique 4" title="Le projet" />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <Card className="grid content-start gap-5 p-6">
           <Field
@@ -63,6 +63,9 @@ export function ProjetStep({ dossier, update }: StepProps) {
             <Field label="Surface existante (m²)" hint="Surface de plancher déjà bâtie sur le terrain.">
               {(id) => <Input id={id} inputMode="decimal" value={p.surfaceExistante} onChange={(e) => set('surfaceExistante', num(e.target.value))} />}
             </Field>
+            <Field label="Emprise existante (m²)" hint="Emprise au sol déjà bâtie avant travaux.">
+              {(id) => <Input id={id} inputMode="decimal" value={p.empriseExistante ?? 0} onChange={(e) => set('empriseExistante', num(e.target.value))} />}
+            </Field>
           </Card>
           <RegulatoryNotice emprise={p.emprise} surface={p.surfacePlancher} />
           <Card className="p-5">
@@ -72,7 +75,7 @@ export function ProjetStep({ dossier, update }: StepProps) {
               <dd className="text-right tabular">
                 {fr(MODULE.length)} × {fr(MODULE.width)} m
               </dd>
-              <dt className="text-muted">Hauteur</dt>
+              <dt className="text-muted">Hauteur depuis le terrain</dt>
               <dd className="text-right tabular">{fr(MODULE.height)} m</dd>
               <dt className="text-muted">Emprise au sol</dt>
               <dd className="text-right tabular">{fr(MODULE.footprint, 1)} m²</dd>

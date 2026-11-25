@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, CheckCircle2, Download, FileText, LoaderCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Download, FilePen, FileText, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { StepId } from '@/lib/dossier';
 import { declarantName } from '@/lib/dossier';
@@ -9,14 +9,14 @@ import { Button, Card, Field, Input, Notice, SectionTitle } from '../ui/controls
 import type { StepProps } from './types';
 
 const PIECES: { code: string; label: string; step: StepId }[] = [
-  { code: 'Cerfa', label: 'Récapitulatif du formulaire 13703', step: 'declarant' },
-  { code: 'DP1', label: 'Plan de situation (1/25 000 et 1/5 000)', step: 'terrain' },
-  { code: 'DP2', label: 'Plan de masse coté', step: 'implantation' },
-  { code: 'DP3', label: 'Coupes du module (1/50)', step: 'projet' },
-  { code: 'DP4', label: 'Façades, plan et toiture (1/50, 1/75)', step: 'projet' },
-  { code: 'DP6', label: 'Insertion paysagère', step: 'insertion' },
-  { code: 'DP7', label: 'Photographie — environnement proche', step: 'photos' },
-  { code: 'DP8', label: 'Photographie — paysage lointain', step: 'photos' },
+  { code: 'Cerfa', label: 'Formulaire officiel 16702*03 pré-rempli', step: 'declarant' },
+  { code: 'DPC1', label: 'Plan de situation (1/25 000 et 1/5 000)', step: 'terrain' },
+  { code: 'DPC2', label: 'Plan de masse coté', step: 'implantation' },
+  { code: 'DPC3', label: 'Coupes du module (1/50)', step: 'projet' },
+  { code: 'DPC4', label: 'Façades, plan et toiture (1/50, 1/75)', step: 'projet' },
+  { code: 'DPC6', label: 'Insertion paysagère', step: 'insertion' },
+  { code: 'DPC7', label: 'Photographie — environnement proche', step: 'photos' },
+  { code: 'DPC8', label: 'Photographie — paysage lointain', step: 'photos' },
 ];
 
 export function ExportStep({ dossier, update, status, goTo }: StepProps) {
@@ -28,6 +28,20 @@ export function ExportStep({ dossier, update, status, goTo }: StepProps) {
 
   const incomplete = (Object.entries(status) as [StepId, (typeof status)[StepId]][]).filter(([id, s]) => id !== 'export' && !s.done);
   const fileName = `DP-${dossier.reference}-${declarantName(dossier).replace(/[^\p{L}\d]+/gu, '-')}.pdf`;
+
+  async function downloadCerfa() {
+    setError(null);
+    try {
+      const { fillCerfa, loadCerfaTemplate } = await import('@/lib/pdf/cerfa-official');
+      const filled = await fillCerfa(dossier, await loadCerfaTemplate(), { flatten: false });
+      const url = URL.createObjectURL(new Blob([(await filled.save()) as BlobPart], { type: 'application/pdf' }));
+      const a = Object.assign(document.createElement('a'), { href: url, download: `Cerfa-16702-${dossier.reference}.pdf` });
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
 
   async function generate() {
     setError(null);
@@ -111,6 +125,9 @@ export function ExportStep({ dossier, update, status, goTo }: StepProps) {
                 <Download className="size-4" /> Télécharger
               </a>
             )}
+            <Button variant="ghost" onClick={downloadCerfa} title="Formulaire pré-rempli, encore modifiable dans un lecteur PDF">
+              <FilePen className="size-4" /> Cerfa 16702 modifiable
+            </Button>
           </div>
           {progress && (
             <div className="h-1 overflow-hidden rounded-full bg-line">
